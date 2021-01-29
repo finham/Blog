@@ -4,8 +4,8 @@
 <!--这里改为显示我们自己的内容-->
 <template>
     <div id="app">
-        <div class="header-part">右边内容</div>
-        <div class="content">
+        <div class="content-title-box">右边内容</div>
+        <div class="content-box">
             <router-view></router-view>
         </div>
     </div>
@@ -15,5 +15,14 @@
 
 </script>
 <style>
+    .content-title-box {
+        color: black;
+        padding: 10px;
+        border-bottom: solid 2px white;
+    }
 
+    .content-box {
+        padding-left: 10px;
+        padding-top: 10px;
+    }
 </style>

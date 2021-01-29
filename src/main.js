@@ -5,7 +5,7 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import leftMenu from './layout/left-menu'
-
+import topHeader from './layout/top-header'
 //代表目前处在开发模式
 /**
  * 开发模式：npm run dev是前端自己开发用的
@@ -15,6 +15,7 @@ Vue.config.productionTip = false;
 Vue.use(ElementUI);
 //
 Vue.component("leftMenu", leftMenu);
+Vue.component("topHeader", topHeader);
 
 new Vue({
     router,
@@ -29,4 +30,5 @@ new Vue({
     data: {
 
     }
+    //手动挂载到id为app的dom中的意思
 }).$mount('#app') //mount挂载，#是选择器的意思，app是App.vue里id为app

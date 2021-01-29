@@ -50,6 +50,7 @@ export const routes = [
                 name: '内容',
                 icon: 'el-icon-star-on',
                 hidden: false,
+                require: 'ROLE_STUDENT', //例如要添加角色权限，就可以这样添加
                 component: rightContent,
                 children: [
                     {
