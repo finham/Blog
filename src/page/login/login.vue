@@ -20,7 +20,7 @@
                                 <el-input type='password' v-model="user.password" placeholder="xxx"></el-input>
                             </el-form-item>
                             <el-form-item label="验证码" required>
-                                <el-input v-model="loginInfo.verifyCode"></el-input>
+                                <el-input v-model="loginInfo.verifyCode" @keyup.enter.native="login"></el-input><!--注意这里-->>
                                 <img :src="imgPath" @click="updateVerifyCode">
                             </el-form-item>
                             <el-form-item>
@@ -58,6 +58,14 @@
         },
         methods: {  // 注意这里是methods ，不要少了这个s！！！
             login() {
+                if (this.user.account === '') {
+                    this.toastError('账号为空');
+                    return;
+                }
+                if (this.user.password === '') {
+                    this.toastError('密码为空');
+                    return;
+                }
                 axios({
                     method: 'post',
                     url: 'http://192.168.220.141:2020//user/login/' + this.loginInfo.verifyCode + '/'
@@ -65,22 +73,47 @@
                     data: this.user
                 }).then(response => {
                     console.log(response)
+                    // 判断状态
+                    // 如果成功则跳转，普通用户跳到首页，如果是管理员跳到管理中心。main.js里要对router做拦截
+                    // 失败给出提示
+                    let data = response.data
+                    if (data.code === 2000) {
+                        // 跳转到首页，别漏了$
+                        this.$router.push('/index')
+                        // this.$message是elementUI提供的功能
+                        // https://element.eleme.cn/#/zh-CN/component/message
+                        this.$message({
+                            message: data.message,
+                            center: true,
+                            type: 'success'
+                        })
+                    } else {
+                        toastError(data.message);
+                    }
+
                 })
             },
             updateVerifyCode() {
                 this.imgPath = 'http://192.168.220.141:2020//user/captcha?captcha_key=' + this.key;
                 console.log(this.imgPath)
+            },
+            toastError(msg) {
+                this.$message({
+                    message: msg,
+                    center: true,
+                    type: 'error'
+                })
             }
         },
         // 在mounted的时候就要去初始化验证码图片路径
         mounted() {
+            // 要先检查登录是否有效，如果有效直接跳到首页
             axios
                 .get("'https://api.coindesk.com/v1/bpi/currentprice.json'")
-                .then(
-                    response => {
-                        console.log(response)
-                        this.dream = response.data.bpi
-                    })
+                .then(response => {
+                    console.log(response)
+                    this.dream = response.data.bpi
+                })
             // 注意这里，建信的项目也是这样写前端的
             this.key = Date.parse(new Date())
             this.updateVerifyCode();
