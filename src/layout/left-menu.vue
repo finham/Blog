@@ -3,16 +3,17 @@
     <!--这种做法是固定写死的，后续会改成根据登录状态、账号信息等动态添加侧栏item，那样才是正确的-->
 
     <!--遍历菜单内容：一种是有子内容的，另一种是没有的-->
-    <el-menu default-active="0" class="el-menu-vertical" unique-opened='true' @open="handleOpen" @close="handleClose">
+    <el-menu default-active="0" class="el-menu-vertical" :unique-opened='true' @open="handleOpen" @close="handleClose">
       <template v-for="(item,index) in menuList">
         <router-link :to='item.path' v-if="!item.children && !item.hidden" :key="index">
-          <el-menu-item :index="index">
+          <!--这里 :index 需要加上''来表示为字符串，否则console会有错误-->
+          <el-menu-item :index="index+''">
             <i :class="item.icon"></i>
             <span slot="title">{{item.name}}</span>
           </el-menu-item>
         </router-link>
 
-        <el-submenu v-if='item.children && !item.hidden' :index="index" :key="index">
+        <el-submenu v-if='item.children && !item.hidden' :index="index+''" :key="index">
           <template slot="title">
             <i :class="item.icon"></i>
             <span>{{item.name}}</span>

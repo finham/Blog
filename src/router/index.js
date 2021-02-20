@@ -166,7 +166,8 @@ export const routes = [
                     }
                 ]
             }
-        ]
+        ],
+        //requireLogin: true
     },
     {
         path: '/login',

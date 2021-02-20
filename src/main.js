@@ -17,6 +17,41 @@ Vue.use(ElementUI);
 Vue.component("leftMenu", leftMenu);
 Vue.component("topHeader", topHeader);
 
+import { checkToken } from './api/api'
+
+//设置前置守卫：https://router.vuejs.org/zh/guide/advanced/navigation-guards.html
+router.beforeEach((to, from, next) => {
+    console.log(to);
+    console.log(from);
+    console.log(next);
+    //如果是登录页面，则不拦截
+    //否则就检查用户角色：管理员不拦截；普通用户的话跳转到首页
+    //可以用path，也可以在路由里添加属性例如 requireLogin 进行判断
+    if (to.path === '/login') {
+        //这里还能继续优化
+        next();
+    } else {
+        //后台需要提供一个通过token来获取用户信息的接口（这个教程要配合另外的后端课程，我没写）
+        checkToken()
+            .then(result => {
+                let res = result.data;
+                console.log(res);
+                // 这些code、roles字段都是后端规定的，可以从log中获取到
+                if (res.code === 20000) {
+                    if (res.data.roles === "role_admin") {
+                        next();
+                    } else {
+                        location.href = "https://www.sunofbeach.com";
+                    }
+                } else {
+                    next({
+                        path: "/login"
+                    })
+                }
+            })
+    }
+});
+
 new Vue({
     router,
     //这是ES6的写法，

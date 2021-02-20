@@ -1050,3 +1050,194 @@ module.exports = {
 
 ## 二十六、解析token判断角色处理页面跳转
 
+在main.js里设置 **路由的前置守卫 beforeEach**（建融智合也是这样做的）：https://router.vuejs.org/zh/guide/advanced/navigation-guards.html
+
+```javascript
+import Vue from 'vue'
+import App from './App.vue'
+import router from './router'
+/*饿了么UI库*/
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import leftMenu from './layout/left-menu'
+import topHeader from './layout/top-header'
+//代表目前处在开发模式
+/**
+ * 开发模式：npm run dev是前端自己开发用的
+ * 生产模式：npm run build 打包之后给后端放在服务端上用的
+ */
+Vue.config.productionTip = false;
+Vue.use(ElementUI);
+//
+Vue.component("leftMenu", leftMenu);
+Vue.component("topHeader", topHeader);
+
+const axios = require("axios");
+
+//设置前置守卫：https://router.vuejs.org/zh/guide/advanced/navigation-guards.html
+router.beforeEach((to, from, next) => {
+    console.log(to);
+    console.log(from);
+    console.log(next);
+    //如果是登录页面，则不拦截
+    //否则就检查用户角色：管理员不拦截；普通用户的话跳转到首页
+    //可以用path，也可以在路由里添加属性例如 requireLogin 进行判断
+    if (to.path === '/login') {
+        next();
+    } else {
+        //后台需要提供一个通过token来获取用户信息的接口（这个教程要配合另外的后端课程，这里没写）
+        axios.get('/user/check-token')
+            .then(result => {
+                let res = result.data;
+                console.log(res);
+                // 这些code、roles字段都是后端规定的，可以从log中获取到
+                if (res.code === 20000) {
+                    if (res.data.roles === "role_admin") {
+                        next();
+                    } else {
+                        location.href = "https://www.sunofbeach.com";
+                    }
+                } else {
+                    next({
+                        path: "/login"
+                    })
+                }
+            })
+    }
+});
+
+new Vue({
+    router,
+    //这是ES6的写法，
+    //createElement就是h，一个形参，没有具体意义，可以随意改变书写
+    //   render:(function(createElement){
+    //       return createElement(App);
+    //     })
+    //render是一个方法，自带一个形参createElement，这个参数也是一个方法，
+    //是用来创建vue 节点的，也就是html模板的，然后渲染(render)到指定的节点上
+    render: h => h(App),
+    data: {
+
+    }
+    //手动挂载到id为app的dom中的意思
+}).$mount('#app') //mount挂载，#是选择器的意思，app是App.vue里id为app
+```
+
+主要去了解 router.beforeEach() 的用法。
+
+## 二十七、抽取网络请求的API
+
+可以看到前面很多都有axios的使用，需要先import进来，然后使用，这里把他们抽取出来。
+
+创建文件夹 api。创建http.js和api.js。
+
+代码如下：
+
+http.js
+
+```javascript
+import axios from 'axios'
+
+axios.defaults.withCredentials = true;
+axios.defaults.timeout = 10000;
+axios.defaults.headers.post['Content-Type'] = "application/x-www=form-urlencoded"
+
+export default {
+    //get
+    requestGet(url, params = {}) {
+        return new Promise((resolve, reject) => {
+            axios.get(url, params)
+                .then(result => {
+                    resolve(result.data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    },
+    //post
+    requestPost(url, params = {}) {
+        return new Promise((resolve, reject) => {
+            axios.post(url, params)
+                .then(result => {
+                    resolve(result.data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    },
+    //delete
+    requestDelete(url, params = {}) {
+        return new Promise((resolve, reject) => {
+            axios.delete(url, params)
+                .then(result => {
+                    resolve(result.data);
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        })
+    }
+
+    //and so on 
+}
+```
+
+api.js
+
+```javascript
+import http from './http'
+
+//这个 () => {} 是ES6里的箭头函数，和function()定义大体一样，但还是会有一些差别例如this的指向
+// (x) => x + n 相当于 function(x) { return x+n;}
+export const checkToken = () => {
+    return http.requestGet("/user/check-token");
+}
+
+export const login = (verifyCode, from, user) => {
+    return http.requestPost("/user/login" + verifyCode + "/" + from, user);
+}
+```
+
+怎么使用呢？
+
+```javascript
+import { login } from '../../api/api'; //先import进来
+
+login().then(response => {
+    console.log(response)
+    // 判断状态
+    // 如果成功则跳转，普通用户跳到首页，如果是管理员跳到管理中心。main.js里要对router做拦截
+    // 失败给出提示
+    let data = response.data;
+    // 具体什么值由后端写的接口确定
+    if (data.code === 20000) {
+        // 跳转到首页，别漏了$
+        this.$router.push('/index')
+        // this.$message是elementUI提供的功能
+        // https://element.eleme.cn/#/zh-CN/component/message
+        this.$message({
+            message: data.message,
+            center: true,
+            type: 'success'
+        })
+    } else {
+        this.updateVerifyCode();
+        toastError(data.message);
+    }
+})
+}
+```
+
+## 二十八、解决左侧菜单的bug
+
+注意看log，懂得分析log。
+
+然后去代码里更改对应的代码。
+
+## 二十九、获取分类列表
+
+* 页面（elementUI）+ JavaScript
+* 配置代理：vue.config.js
+* http请求与api接口

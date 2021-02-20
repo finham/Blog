@@ -38,7 +38,8 @@
 </template>
 
 <script>
-    const axios = require('axios')
+    //const axios = require('axios')
+    import {} from '../../api/api';
     export default {
         data() {
             return {
@@ -56,7 +57,7 @@
                 dream: ''
             }
         },
-        methods: {  // 注意这里是methods ，不要少了这个s！！！
+        methods: {  // 注意这里是methods ，不要少了这个s！！！不然必错！
             login() {
                 if (this.user.account === '') {
                     this.toastError('账号为空');
@@ -76,8 +77,9 @@
                     // 判断状态
                     // 如果成功则跳转，普通用户跳到首页，如果是管理员跳到管理中心。main.js里要对router做拦截
                     // 失败给出提示
-                    let data = response.data
-                    if (data.code === 2000) {
+                    let data = response.data;
+                    // 具体什么值由后端写的接口确定
+                    if (data.code === 20000) {
                         // 跳转到首页，别漏了$
                         this.$router.push('/index')
                         // this.$message是elementUI提供的功能
@@ -88,6 +90,7 @@
                             type: 'success'
                         })
                     } else {
+                        this.updateVerifyCode();
                         toastError(data.message);
                     }
 
