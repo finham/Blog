@@ -32,13 +32,14 @@ router.beforeEach((to, from, next) => {
         next();
     } else {
         //后台需要提供一个通过token来获取用户信息的接口（这个教程要配合另外的后端课程，我没写）
+        //axios.get('/user/check-token')
         checkToken()
             .then(result => {
-                let res = result.data;
-                console.log(res);
+                //let res = result.data;
+                console.log(result);
                 // 这些code、roles字段都是后端规定的，可以从log中获取到
-                if (res.code === 20000) {
-                    if (res.data.roles === "role_admin") {
+                if (result.code === 20000) {
+                    if (result.data.roles === "role_admin") {
                         next();
                     } else {
                         location.href = "https://www.sunofbeach.com";

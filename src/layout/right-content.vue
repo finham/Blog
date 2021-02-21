@@ -4,7 +4,7 @@
 <!--这里改为显示我们自己的内容-->
 <template>
     <div id="app">
-        <div class="content-title-box">右边内容</div>
+        <div class="content-title-box" v-text="$route.name">右边内容</div>
         <div class="content-box">
             <router-view></router-view>
         </div>
@@ -12,7 +12,11 @@
 </template>
 
 <script>
-
+    export default {
+        mounted() {
+            this.$router
+        }
+    }
 </script>
 <style>
     .content-title-box {

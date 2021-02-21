@@ -1241,3 +1241,42 @@ login().then(response => {
 * 页面（elementUI）+ JavaScript
 * 配置代理：vue.config.js
 * http请求与api接口
+
+## 三十、格式化日期
+
+```javascript
+// 使用方法为： formatDate(new Date(dateStr), 'yyyy-MM-dd hh:mm:ss')
+export function formatDate(date, format) {
+    //正则表达式
+    if (/(y+)/.test(format)) {
+        format = format.replace(RegExp.$1, (date.getFullYear() + '').substr(4 - RegExp.$1.length));
+    }
+
+    let o = {
+        'M+': date.getMonth() + 1,
+        'd+': date.getDate(),
+        'h+': date.getHours(),
+        'm+': date.getMinutes(),
+        's+': date.getSeconds()
+    }
+    for (let k in o) {
+        if (new RegExp(`(${k})`).test(format)) {
+            let str = o[k] + '';
+            format = format.replace(RegExp.$1, (RegExp.$1.length === 1) ? str : padLeftZero(str));
+        }
+    }
+    return format;
+}
+
+function padLeftZero(str) {
+    return ('00' + str).substr(str.length);
+}
+```
+
+导入：import * as dateUtils from '../../utils/date';
+
+## 三十一、删除分类内容
+
+和后端配合联调。
+
+由于我没后端，感觉后面也不是很有必要继续看下去。就先到这里吧。把路由这个框架学了再说。

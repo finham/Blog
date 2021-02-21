@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { reject, resolve } from 'core-js/fn/promise';
 
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 10000;

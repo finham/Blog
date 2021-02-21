@@ -20,7 +20,8 @@
                                 <el-input type='password' v-model="user.password" placeholder="xxx"></el-input>
                             </el-form-item>
                             <el-form-item label="验证码" required>
-                                <el-input v-model="loginInfo.verifyCode" @keyup.enter.native="login"></el-input><!--注意这里-->>
+                                <el-input v-model="loginInfo.verifyCode" @keyup.enter.native="login"></el-input>
+                                <!--注意这里-->>
                                 <img :src="imgPath" @click="updateVerifyCode">
                             </el-form-item>
                             <el-form-item>
@@ -39,7 +40,7 @@
 
 <script>
     //const axios = require('axios')
-    import {} from '../../api/api';
+    import { login } from '../../api/api';
     export default {
         data() {
             return {
@@ -67,34 +68,35 @@
                     this.toastError('密码为空');
                     return;
                 }
-                axios({
-                    method: 'post',
-                    url: 'http://192.168.220.141:2020//user/login/' + this.loginInfo.verifyCode + '/'
-                        + this.loginInfo.from,
-                    data: this.user
-                }).then(response => {
-                    console.log(response)
-                    // 判断状态
-                    // 如果成功则跳转，普通用户跳到首页，如果是管理员跳到管理中心。main.js里要对router做拦截
-                    // 失败给出提示
-                    let data = response.data;
-                    // 具体什么值由后端写的接口确定
-                    if (data.code === 20000) {
-                        // 跳转到首页，别漏了$
-                        this.$router.push('/index')
-                        // this.$message是elementUI提供的功能
-                        // https://element.eleme.cn/#/zh-CN/component/message
-                        this.$message({
-                            message: data.message,
-                            center: true,
-                            type: 'success'
-                        })
-                    } else {
-                        this.updateVerifyCode();
-                        toastError(data.message);
-                    }
+                // axios({
+                //     method: 'post',
+                //     url: 'http://192.168.220.141:2020//user/login/' + this.loginInfo.verifyCode + '/' + this.loginInfo.from,
+                //     data: this.user
+                // })
+                login()
+                    .then(response => {
+                        console.log(response)
+                        // 判断状态
+                        // 如果成功则跳转，普通用户跳到首页，如果是管理员跳到管理中心。main.js里要对router做拦截
+                        // 失败给出提示
+                        let data = response.data;
+                        // 具体什么值由后端写的接口确定
+                        if (data.code === 20000) {
+                            // 跳转到首页，别漏了$
+                            this.$router.push('/index')
+                            // this.$message是elementUI提供的功能
+                            // https://element.eleme.cn/#/zh-CN/component/message
+                            this.$message({
+                                message: data.message,
+                                center: true,
+                                type: 'success'
+                            })
+                        } else {
+                            this.updateVerifyCode();
+                            toastError(data.message);
+                        }
 
-                })
+                    })
             },
             updateVerifyCode() {
                 this.imgPath = 'http://192.168.220.141:2020//user/captcha?captcha_key=' + this.key;
