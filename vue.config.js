@@ -9,6 +9,11 @@ module.exports = {
             // '^/foo': {
             //     target: '<other_url>'
             // }
+            'admin':{
+                target: 'http://192.168.220.141:2020/',
+                //ws: true,
+                changeOrigin: true
+            }
         }
     }
 }

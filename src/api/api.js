@@ -9,3 +9,12 @@ export const checkToken = () => {
 export const login = (verifyCode, from, user) => {
     return http.requestPost("/user/login" + verifyCode + "/" + from, user);
 }
+
+//一次性拿完，所以不需要参数
+export const listCategory = () => {
+    return http.requestGet("/admin/category/list");
+}
+
+export const deleteCategory = (id) => {
+    return http.requestDelete("/admin/category/" + id);
+}
